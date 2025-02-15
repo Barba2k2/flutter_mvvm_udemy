@@ -21,7 +21,7 @@ abstract class Command<Output extends Object> extends ChangeNotifier {
   Result<Output>? get result => _result;
 
   // Verfica se o nosso estado foi gerado com sucesso
-  bool get complet => _result is Ok;
+  bool get completed => _result is Ok<Output>;
 
   // Verfica se o nosso estado eh de erro
   bool get error => _result is Error;
@@ -41,5 +41,25 @@ abstract class Command<Output extends Object> extends ChangeNotifier {
       _running = false;
       notifyListeners();
     }
+  }
+}
+
+class Command0<Output extends Object> extends Command<Output> {
+  final CommandAction0<Output> action;
+
+  Command0(this.action);
+
+  Future<void> execute() async {
+    await _execute(() => action());
+  }
+}
+
+class Command1<Output extends Object, Input extends Object> extends Command<Output> {
+  final CommandAction1<Output, Input> action;
+
+  Command1(this.action);
+
+  Future<void> execute(Input params) async {
+    await _execute(() => action(params));
   }
 }
