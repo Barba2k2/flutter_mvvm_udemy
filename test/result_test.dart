@@ -12,7 +12,7 @@ void main() {
     test("Should create a Error Result", () {
       final result = Result.error(Exception('Ocorreu um erro...'));
 
-      expect((result as Error).value, isA<Exception>());
+      expect((result as Error).error, isA<Exception>());
     });
 
     test('Should create a Ok Result with Extension', () {
@@ -24,7 +24,7 @@ void main() {
     test('Should create a Error Result with Extension', () {
       final result = Exception('Ocorreu um erro...').error();
 
-      expect(result.asError.value, isA<Exception>());
+      expect(result.asError.error, isA<Exception>());
     });
   });
 }
