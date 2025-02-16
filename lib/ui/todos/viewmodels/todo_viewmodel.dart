@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/commands/commands.dart';
-import '../../../core/result/result.dart';
+import '../../../utils/commands/commands.dart';
+import '../../../utils/result/result.dart';
 import '../../../data/repositories/todos/todos_repository.dart';
 import '../../../domain/modes/todo.dart';
 
