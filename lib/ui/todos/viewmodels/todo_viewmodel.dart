@@ -2,59 +2,74 @@ import 'package:flutter/material.dart';
 
 import '../../../core/commands/commands.dart';
 import '../../../core/result/result.dart';
+import '../../../data/repositories/todos/todos_repository.dart';
 import '../../../domain/modes/todo.dart';
 
 class TodoViewmodel extends ChangeNotifier {
-  TodoViewmodel() {
+  TodoViewmodel({
+    required TodosRepository todosRepository,
+  }) : _todosRepository = todosRepository {
     load = Command0(_load)..execute();
     addTodo = Command1(_addTodo);
     deleteTodo = Command1(_deleteTodo);
   }
 
+  final TodosRepository _todosRepository;
+
   late Command0 load;
 
   late Command1<Todo, String> addTodo;
 
-  late Command1<String, Todo> deleteTodo;
+  late Command1<void, Todo> deleteTodo;
 
   List<Todo> _todos = [];
 
   List<Todo> get todos => _todos;
 
   Future<Result> _load() async {
-    await Future.delayed(const Duration(seconds: 1));
+    final result = await _todosRepository.get();
 
-    final List<Todo> todos = [];
+    switch (result) {
+      case Ok<List<Todo>>():
+        _todos = result.value;
+        notifyListeners();
+      case Error():
+        // TODO: Implements Logging
+        break;
+    }
 
-    _todos = todos;
-
-    notifyListeners();
-
-    return Result.ok(todos);
+    return result;
   }
 
   Future<Result<Todo>> _addTodo(String name) async {
-    final lastTodoIndex = _todos.length;
+    final result = await _todosRepository.add(name);
 
-    final createTodo = Todo(
-      id: lastTodoIndex + 1,
-      name: name,
-    );
+    switch (result) {
+      case Ok<Todo>():
+        _todos.add(result.value);
+        notifyListeners();
+        break;
+      case Error():
+      // TODO: Implements Logging
+      default:
+    }
 
-    _todos.add(createTodo);
-
-    notifyListeners();
-
-    return Result.ok(createTodo);
+    return result;
   }
 
-  Future<Result<String>> _deleteTodo(Todo todo) async {
-    Future.delayed(const Duration(seconds: 1));
+  Future<Result<void>> _deleteTodo(Todo todo) async {
+    final result = await _todosRepository.delete(todo);
 
-    _todos.remove(todo);
+    switch (result) {
+      case Ok<void>():
+        _todos.remove(todo);
+        notifyListeners();
+        break;
+      case Error():
+      // TODO: Implements Logging
+      default:
+    }
 
-    notifyListeners();
-
-    return Result.ok('Removido com sucesso');
+    return result;
   }
 }

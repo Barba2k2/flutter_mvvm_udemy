@@ -3,7 +3,7 @@ abstract class Result<T> {
 
   factory Result.ok(T value) = Ok._;
 
-  factory Result.error(Exception error) = ResultError._;
+  factory Result.error(Exception error) = Error._;
 }
 
 final class Ok<T> extends Result<T> {
@@ -12,8 +12,8 @@ final class Ok<T> extends Result<T> {
   final T value;
 }
 
-final class ResultError<T> extends Result<T> {
-  ResultError._(this.error);
+final class Error<T> extends Result<T> {
+  Error._(this.error);
 
   final Exception error;
 }
@@ -33,5 +33,5 @@ extension ResultException on Exception {
 extension ResultCasting<T> on Result<T> {
   Ok<T> get asOk => this as Ok<T>;
 
-  ResultError<T> get asError => this as ResultError<T>;
+  Error<T> get asError => this as Error<T>;
 }
