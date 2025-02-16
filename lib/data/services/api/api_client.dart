@@ -76,6 +76,26 @@ class ApiClient {
       }
     } on Exception catch (e) {
       return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<void>> deleteTodo(Todo todo) async {
+    final client = _clientHttpFactory();
+
+    try {
+      final request = await client.delete(_host, _port, "/todos");
+
+      final result = await request.close();
+
+      if (result.statusCode == 200) {
+        return Result.ok(null);
+      }
+
+      return Result.error(HttpException("Invalid Response"));
+    } on Exception catch (e) {
+      return Result.error(e);
     }
   }
 }
