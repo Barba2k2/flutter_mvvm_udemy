@@ -4,7 +4,7 @@ import '../viewmodels/todo_viewmodel.dart';
 import 'add_todo_widget.dart';
 import 'todos_list.dart';
 
-class TodoScreen extends StatelessWidget {
+class TodoScreen extends StatefulWidget {
   final TodoViewmodel todoViewmodel;
 
   const TodoScreen({
@@ -13,20 +13,73 @@ class TodoScreen extends StatelessWidget {
   });
 
   @override
+  State<TodoScreen> createState() => _TodoScreenState();
+}
+
+class _TodoScreenState extends State<TodoScreen> {
+  @override
+  void initState() {
+    widget.todoViewmodel.deleteTodo.addListener(_onResult);
+    super.initState();
+  }
+
+  void _onResult() {
+    if (widget.todoViewmodel.deleteTodo.running) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            content: IntrinsicHeight(
+              child: Center(
+                child: CircularProgressIndicator.adaptive(),
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+      if (widget.todoViewmodel.deleteTodo.completed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Todo removido com sucesso'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ocorreu um erro ao remover o Todo'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.todoViewmodel.deleteTodo.removeListener(_onResult);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todos Screen'),
       ),
       body: ListenableBuilder(
-        listenable: todoViewmodel.load,
+        listenable: widget.todoViewmodel.load,
         builder: (context, child) {
-          if (todoViewmodel.load.running) {
+          if (widget.todoViewmodel.load.running) {
             return const Center(
               child: CircularProgressIndicator.adaptive(),
             );
           }
-          if (todoViewmodel.load.error) {
+          if (widget.todoViewmodel.load.error) {
             return const Center(
               child: Text('Ocorreu um erro ao carregar Todos...'),
             );
@@ -34,9 +87,13 @@ class TodoScreen extends StatelessWidget {
           return child!;
         },
         child: ListenableBuilder(
-          listenable: todoViewmodel,
+          listenable: widget.todoViewmodel,
           builder: (context, child) {
-            return TodoList(todos: todoViewmodel.todos);
+            return TodoList(
+              onDeleteTodo: (todo) {},
+              todos: widget.todoViewmodel.todos,
+              todoViewmodel: widget.todoViewmodel,
+            );
           },
         ),
       ),
@@ -46,7 +103,7 @@ class TodoScreen extends StatelessWidget {
             context: context,
             builder: (context) {
               return AddTodoWidget(
-                todoViewmodel: todoViewmodel,
+                todoViewmodel: widget.todoViewmodel,
               );
             },
           );

@@ -53,6 +53,8 @@ class TodoViewmodel extends ChangeNotifier {
 
     _todos.remove(todo);
 
+    notifyListeners();
+
     return Result.ok('Removido com sucesso');
   }
 }
