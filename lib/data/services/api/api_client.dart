@@ -3,6 +3,7 @@ import 'dart:io';
 
 import '../../../domain/modes/todo.dart';
 import '../../../utils/result/result.dart';
+import 'models/todo/todo_api_model.dart';
 
 class ApiClient {
   final String _host;
@@ -45,7 +46,7 @@ class ApiClient {
     }
   }
 
-  Future<Result<Todo>> postTodo(Todo todo) async {
+  Future<Result<Todo>> postTodo(CreateTodoApiModel todo) async {
     final client = _clientHttpFactory();
 
     try {
@@ -53,9 +54,7 @@ class ApiClient {
 
       request.write(
         jsonEncode(
-          {
-            'name': todo.name,
-          },
+          todo.toJson(),
         ),
       );
 
